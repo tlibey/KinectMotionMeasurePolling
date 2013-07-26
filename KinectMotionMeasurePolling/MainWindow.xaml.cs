@@ -130,8 +130,8 @@ namespace KinectMotionMeasurePolling
 
         //email parameters
         bool emailON = true;
-        bool firstemail = true;
-        int emailUpdateFrequency = 15*60; // in seconds
+        bool firstemail = false;
+        int emailUpdateFrequency = 30*60; // in seconds
         int emailCounter = 0; // how many emails have been sent
         double lastEmail = 0;
 
@@ -675,7 +675,8 @@ namespace KinectMotionMeasurePolling
                         file.WriteLine(elapsed.TotalMilliseconds);
 
                     }
-                    lastTI2TO = currentTimeElapsed;
+
+                  
 
 
                     //firstemail = true;   //to send email updates at the end of each timein, 
@@ -695,12 +696,12 @@ namespace KinectMotionMeasurePolling
                     lastTO2TI = currentTimeElapsed;
 
                 }
-
-                if (currentTimeElapsed >= lastEmail+emailUpdateFrequency)
+                if (currentTimeElapsed >= lastEmail + emailUpdateFrequency)
                 {
                     firstemail = true;
                     lastEmail = currentTimeElapsed;
                 }
+             
 
                /* using (System.IO.StreamWriter file = new System.IO.StreamWriter(TITOfileName, true))
                 {
@@ -877,13 +878,16 @@ namespace KinectMotionMeasurePolling
                 System.Net.NetworkCredential cred = new System.Net.NetworkCredential("tylerplab@gmail.com", "*venta*venta");
                 System.Net.Mail.MailMessage message = new System.Net.Mail.MailMessage();
                 message.To.Add("tylerplab@gmail.com");
-                //message.To.Add("zsr@u.washington.edu");
                 message.To.Add("tlibey1@gmail.com");
                 message.To.Add("zsr@uw.edu");
                 message.From = new System.Net.Mail.MailAddress("tylerplab@gmail.com");
                 message.Subject = "Update" + DateTime.Today.Date + emailCounter.ToString();
-                message.Body = "Number of Events Completed: " + counter.ToString() + "\n" +
-                               "Time Elapsed: " + TimeElapsed.Text + "\n";
+                this.TimeElapsed.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    message.Body = "Number of Events Completed: " + counter.ToString() + "\n" +
+                                                   "Time Elapsed: " + TimeElapsed.Text + "\n";
+                }));
+                
 
 
 
