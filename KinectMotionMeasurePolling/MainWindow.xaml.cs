@@ -137,12 +137,12 @@ namespace KinectMotionMeasurePolling
 
 
         //for audiofeedback
-        bool toneOn = true;
+        bool toneOn = false;
         WaveOut waveOut = new WaveOut();
         SineWaveOscillator osc = new SineWaveOscillator(44100);
 
         //for low resource
-        bool lowResource = true;
+        bool lowResource = false;
         int rectholder1 = 0;
         int rectholder2 = 0;
         int rectholder3 = 0;
@@ -321,8 +321,9 @@ namespace KinectMotionMeasurePolling
                                      }));
                             }
                             //add video images to array such that SaveVideo() can record video through opencv
-                                     _videoArray.Add(frame.ToOpenCVImage<Rgb, Byte>());
-                                     if (_videoArray.Count() > recordLength) // Frame limiter (ideally 4x where x is length of event)
+                            if(currentFrame%frameAcceptance == 0) //set to only add every frameAcceptanceth'd frame
+                                _videoArray.Add(frame.ToOpenCVImage<Rgb, Byte>());
+                                     if (_videoArray.Count() > recordLength/frameAcceptance) // Frame limiter (ideally 4x where x is length of event)
                                          _videoArray.RemoveAt(0);
                               
                         }
@@ -806,7 +807,7 @@ namespace KinectMotionMeasurePolling
         {
 
             string vEventfileName = vfileName + "event" + counter.ToString() + ".avi"; //was eventCounter.tostring()
-            using (VideoWriter vw = new VideoWriter(vEventfileName, 0, frameRate, 640, 480, true))
+            using (VideoWriter vw = new VideoWriter(vEventfileName, 0, frameRate/frameAcceptance, 640, 480, true))
             {
                 for (int i = 0; i < _videoArray.Count(); i++)
                 {
