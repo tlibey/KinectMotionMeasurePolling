@@ -108,6 +108,7 @@ namespace KinectMotionMeasurePolling
         string sfileName = CoreFileName + "/settings.txt"; //this sessions end settings
         string recentSettingsFileName = @"C:/MoveCalc/recentSettings.txt";
         string eventTimesfileName = CoreFileName + "/timeofBehEvents.txt";
+        string eventTimesTOfileName = CoreFileName + "/timeofBehEventsInTO.txt";
         string TITOfileName = CoreFileName + "/TITOtimeStamps.txt";
 
         //starter values
@@ -115,6 +116,7 @@ namespace KinectMotionMeasurePolling
         int timeOutFrameCount = 0; // initializes framecounter 
         int frameRate = 32;
         private int counter = 0; //successful event counter, displayed in top right corner and saved at the end of videos (event{0}.avi)
+        int TOcounter = 0; //events occurring during TO
 
         //Things to play with
         int recordLength = 32 * 6;  //framerate*seconds to record (half before event and half after event)
@@ -123,7 +125,7 @@ namespace KinectMotionMeasurePolling
 
         //time In parameters (only deliver treats during timeIn) 
         bool timeInCounter = true; //true if timeIn Initialized (ie start with TI: set to true)
-        int timeInDuration = 120; //in seconds
+        int timeInDuration = 20; //in seconds
         int timeOutDuration = 240;
         double lastTI2TO = 0;
         double lastTO2TI = 0;
@@ -184,6 +186,10 @@ namespace KinectMotionMeasurePolling
             if (File.Exists(TITOfileName))
             {
                 File.Delete(TITOfileName);
+            }
+            if (File.Exists(eventTimesTOfileName))
+            {
+                File.Delete(eventTimesTOfileName);
             }
 
             //Load Settings File
@@ -472,6 +478,7 @@ namespace KinectMotionMeasurePolling
                 {
                     timeOutFrameCount = 0;
                     timeOutPause = false;
+                    //implement option to not save videos during TO
                     SaveVideo();
                 }
             }
@@ -720,7 +727,7 @@ namespace KinectMotionMeasurePolling
            {
                TimeInDisp.Text = timeInCounter.ToString();
            }));
-            if (!timeOutPause && timeInCounter) //timeoutpause is lockout from event, time in counter is TI vs TO
+            if (!timeOutPause) //timeoutpause is lockout from event, time in counter is TI vs TO
             {
                
                 bool tfcounter = true; //used in RectangleBehaviourCounter to make sure x bars are above line ie true*true = true, true*false = false;
@@ -759,7 +766,7 @@ namespace KinectMotionMeasurePolling
                 #endregion
 
                 //define event to count
-                if (tfcounter) //
+                if (tfcounter && timeInCounter) //
                 {
                     counter++;
                     this.TimeElapsed.Dispatcher.BeginInvoke(new Action(() =>
@@ -778,6 +785,16 @@ namespace KinectMotionMeasurePolling
                         sendSerialTreat();
                     }
 
+                }
+                else if (tfcounter && !timeInCounter)
+                {
+                    TOcounter++;
+                    timeOutPause = true;
+                    using (System.IO.StreamWriter file = new System.IO.StreamWriter(eventTimesTOfileName, true))
+                    {
+                        file.WriteLine(elapsed.TotalMilliseconds);
+
+                    }
                 }
             }
 
@@ -806,7 +823,7 @@ namespace KinectMotionMeasurePolling
         private void SaveVideo()
         {
 
-            string vEventfileName = vfileName + "event" + counter.ToString() + ".avi"; //was eventCounter.tostring()
+            string vEventfileName = vfileName + "event" + (counter + TOcounter).ToString() + ".avi"; //was eventCounter.tostring()
             using (VideoWriter vw = new VideoWriter(vEventfileName, 0, frameRate/frameAcceptance, 640, 480, true))
             {
                 for (int i = 0; i < _videoArray.Count(); i++)
@@ -886,7 +903,8 @@ namespace KinectMotionMeasurePolling
                 this.TimeElapsed.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     message.Body = "Number of Events Completed: " + counter.ToString() + "\n" +
-                                                   "Time Elapsed: " + TimeElapsed.Text + "\n";
+                                                   "Time Elapsed: " + TimeElapsed.Text + "\n" +
+                                                   "Events in TO" + TOcounter.ToString() + "\n";
                 }));
                 
 
