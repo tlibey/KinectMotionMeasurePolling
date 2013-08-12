@@ -125,7 +125,7 @@ namespace KinectMotionMeasurePolling
 
         //time In parameters (only deliver treats during timeIn) 
         bool timeInCounter = true; //true if timeIn Initialized (ie start with TI: set to true)
-        int timeInDuration = 20; //in seconds
+        int timeInDuration = 120; //in seconds
         int timeOutDuration = 240;
         double lastTI2TO = 0;
         double lastTO2TI = 0;
@@ -139,12 +139,12 @@ namespace KinectMotionMeasurePolling
 
 
         //for audiofeedback
-        bool toneOn = false;
+        bool toneOn = true;
         WaveOut waveOut = new WaveOut();
         SineWaveOscillator osc = new SineWaveOscillator(44100);
 
         //for low resource
-        bool lowResource = false;
+        bool lowResource = true;
         int rectholder1 = 0;
         int rectholder2 = 0;
         int rectholder3 = 0;
@@ -683,6 +683,7 @@ namespace KinectMotionMeasurePolling
                         file.WriteLine(elapsed.TotalMilliseconds);
 
                     }
+                    lastTI2TO = currentTimeElapsed;
 
                   
 
@@ -711,15 +712,6 @@ namespace KinectMotionMeasurePolling
                 }
              
 
-               /* using (System.IO.StreamWriter file = new System.IO.StreamWriter(TITOfileName, true))
-                {
-                    file.Write("Special Transition Value CurrentTimeElapsed(FloorVal): ");
-                    file.Write(currentTimeElapsed);
-                    file.Write("   lastTO2TI:");
-                    file.Write(lastTO2TI);
-                    file.Write("   lastTITO:");
-                    file.WriteLine(lastTI2TO);
-                }*/ //old test to determine error
             }
 
 
