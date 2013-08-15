@@ -98,6 +98,8 @@ namespace KinectMotionMeasurePolling
         int loThreshold = 1000; 
         int hiThreshold = 1548;
         int blocks2countset = 6; // max 6
+        string detectionPattern = "regular"; //types "regular" || "lohilo"
+
 
         //logistics and file names
         static DateTime timeStart;
@@ -119,7 +121,7 @@ namespace KinectMotionMeasurePolling
         int TOcounter = 0; //events occurring during TO
 
         //Things to play with
-        int recordLength = 32 * 6;  //framerate*seconds to record (half before event and half after event)
+        int recordLength = 32 * 8;  //framerate*seconds to record (half before event and half after event)
         int frameAcceptance = 4; //x of n frames used in depth calculations
         int valDelayOpenNextFrame = 100; //100 default, change value??
 
@@ -726,32 +728,69 @@ namespace KinectMotionMeasurePolling
                 #region RectangleBehaviorCounter
                 int blocks2count = blocks2countset;
                 //compare Rect 25,multiply tfcounter by 1;
-                tfcounter = tfcounter && (rectholder6 > targetlineholder);
-                blocks2count--;
-                if (blocks2count > 0)
+                if (detectionPattern == "regular")
                 {
-                    tfcounter = tfcounter && (rectholder5> targetlineholder);
+                    tfcounter = tfcounter && (rectholder6 > targetlineholder);
                     blocks2count--;
+                    if (blocks2count > 0)
+                    {
+                        tfcounter = tfcounter && (rectholder5 > targetlineholder);
+                        blocks2count--;
+                    }
+                    if (blocks2count > 0)
+                    {
+                        tfcounter = tfcounter && (rectholder4 > targetlineholder);
+                        blocks2count--;
+                    }
+                    if (blocks2count > 0)
+                    {
+                        tfcounter = tfcounter && (rectholder3 > targetlineholder);
+                        blocks2count--;
+                    }
+                    if (blocks2count > 0)
+                    {
+                        tfcounter = tfcounter && (rectholder2 > targetlineholder);
+                        blocks2count--;
+                    }
+                    if (blocks2count > 0)
+                    {
+                        tfcounter = tfcounter && (rectholder1 > targetlineholder);
+                        blocks2count--;
+                    }
                 }
-                if (blocks2count > 0)
+                else if (detectionPattern == "lohilo")
                 {
-                    tfcounter = tfcounter && (rectholder4 > targetlineholder);
+                    double lo = targetlineholder / 2;
+                    double hi = targetlineholder;
+                    tfcounter = tfcounter && (rectholder6 < lo);
                     blocks2count--;
-                }
-                if (blocks2count > 0)
-                {
-                    tfcounter = tfcounter && (rectholder3 > targetlineholder);
-                    blocks2count--;
-                }
-                if (blocks2count > 0)
-                {
-                    tfcounter = tfcounter && (rectholder2 > targetlineholder);
-                    blocks2count--;
-                }
-                if (blocks2count > 0)
-                {
-                    tfcounter = tfcounter && (rectholder1 > targetlineholder);
-                    blocks2count--;
+                    if (blocks2count > 0)
+                    {
+                        tfcounter = tfcounter && (rectholder5 < lo);
+                        blocks2count--;
+                    }
+                    if (blocks2count > 0)
+                    {
+                        tfcounter = tfcounter && (rectholder4 > hi);
+                        blocks2count--;
+                    }
+                    if (blocks2count > 0)
+                    {
+                        tfcounter = tfcounter && (rectholder3 > hi);
+                        blocks2count--;
+                    }
+                    if (blocks2count > 0)
+                    {
+                        tfcounter = tfcounter && (rectholder2 < lo);
+                        blocks2count--;
+                    }
+                    if (blocks2count > 0)
+                    {
+                        tfcounter = tfcounter && (rectholder1 < lo);
+                        blocks2count--;
+                    }
+
+
                 }
                 
 
