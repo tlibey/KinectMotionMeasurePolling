@@ -98,7 +98,7 @@ namespace KinectMotionMeasurePolling
         int loThreshold = 1000; 
         int hiThreshold = 1548;
         int blocks2countset = 6; // max 6
-        string detectionPattern = "regular"; //types "regular" || "lohilo"
+        string detectionPattern = "regular"; //types "regular" || "lohilo" || "loRegular
 
 
         //logistics and file names
@@ -128,14 +128,14 @@ namespace KinectMotionMeasurePolling
         //time In parameters (only deliver treats during timeIn) 
         bool timeInCounter = true; //true if timeIn Initialized (ie start with TI: set to true)
         int timeInDuration = 120; //in seconds
-        int timeOutDuration = 240;
+        int timeOutDuration = 120;
         double lastTI2TO = 0;
         double lastTO2TI = 0;
 
         //email parameters
         bool emailON = true;
         bool firstemail = false;
-        int emailUpdateFrequency = 30*60; // in seconds
+        int emailUpdateFrequency = 15*60; // in seconds
         int emailCounter = 0; // how many emails have been sent
         double lastEmail = 0;
 
@@ -209,6 +209,7 @@ namespace KinectMotionMeasurePolling
                     quadMarginYB = Convert.ToInt16(sr.ReadLine());
                     blocks2countset = Convert.ToInt16(sr.ReadLine());
                 }
+                saveSettings(); //makes copy in local folder
             }
             
                 xQuadMarginSliderR.Value = quadMarginXR;
@@ -792,6 +793,37 @@ namespace KinectMotionMeasurePolling
 
 
                 }
+                else if (detectionPattern == "loRegular")
+                {
+                    tfcounter = tfcounter && (rectholder6 < targetlineholder);
+                    blocks2count--;
+                    if (blocks2count > 0)
+                    {
+                        tfcounter = tfcounter && (rectholder5 < targetlineholder);
+                        blocks2count--;
+                    }
+                    if (blocks2count > 0)
+                    {
+                        tfcounter = tfcounter && (rectholder4 < targetlineholder);
+                        blocks2count--;
+                    }
+                    if (blocks2count > 0)
+                    {
+                        tfcounter = tfcounter && (rectholder3 < targetlineholder);
+                        blocks2count--;
+                    }
+                    if (blocks2count > 0)
+                    {
+                        tfcounter = tfcounter && (rectholder2 < targetlineholder);
+                        blocks2count--;
+                    }
+                    if (blocks2count > 0)
+                    {
+                        tfcounter = tfcounter && (rectholder1 < targetlineholder);
+                        blocks2count--;
+                    }
+
+                }
                 
 
                 #endregion
@@ -928,7 +960,7 @@ namespace KinectMotionMeasurePolling
                 System.Net.Mail.MailMessage message = new System.Net.Mail.MailMessage();
                 message.To.Add("tylerplab@gmail.com");
                 message.To.Add("tlibey1@gmail.com");
-                message.To.Add("zsr@uw.edu");
+                message.To.Add("zroberts318@gmail.com");
                 message.From = new System.Net.Mail.MailAddress("tylerplab@gmail.com");
                 message.Subject = "Update" + DateTime.Today.Date + emailCounter.ToString();
                 this.TimeElapsed.Dispatcher.BeginInvoke(new Action(() =>
@@ -1004,6 +1036,12 @@ namespace KinectMotionMeasurePolling
 
         public void SaveSettingsButton(object sender, EventArgs a)
         {
+            saveSettings();
+        }
+
+        private void saveSettings()
+        {
+
             if (File.Exists(sfileName))
             {
                 File.Delete(sfileName);
@@ -1037,6 +1075,7 @@ namespace KinectMotionMeasurePolling
                 file.WriteLine(blocks2countset);
 
             }
+
         }
 
         #endregion Properties
