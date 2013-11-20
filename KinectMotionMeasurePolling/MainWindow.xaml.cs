@@ -108,7 +108,7 @@ namespace KinectMotionMeasurePolling
         string tfileName = CoreFileName + "/timeofMovementValues.txt";
         string vfileName = CoreFileName + "/Videos/";
         string sfileName = CoreFileName + "/settings.txt"; //this sessions end settings
-        string recentSettingsFileName = @"C:/MoveCalc/recentSettings.txt";
+        string recentSettingsFileName = @"C:/MoveCalc/" + "recentSettings.txt";
         string eventTimesfileName = CoreFileName + "/timeofBehEvents.txt";
         string eventTimesTOfileName = CoreFileName + "/timeofBehEventsInTO.txt";
         string TITOfileName = CoreFileName + "/TITOtimeStamps.txt";
@@ -198,17 +198,21 @@ namespace KinectMotionMeasurePolling
             // lothresh, hithresh, yslider, xslider, threshslider
             if (File.Exists(recentSettingsFileName))
             {
-                using (StreamReader sr = new StreamReader(recentSettingsFileName))
+                try
                 {
-                    CountThresh = Convert.ToDouble(sr.ReadLine());
-                    loThreshold = Convert.ToInt16(sr.ReadLine());
-                    hiThreshold = Convert.ToInt16(sr.ReadLine());
-                    quadMarginXR = Convert.ToInt16(sr.ReadLine());
-                    quadMarginXL = Convert.ToInt16(sr.ReadLine());
-                    quadMarginYT = Convert.ToInt16(sr.ReadLine());
-                    quadMarginYB = Convert.ToInt16(sr.ReadLine());
-                    blocks2countset = Convert.ToInt16(sr.ReadLine());
+                    using (StreamReader sr = new StreamReader(recentSettingsFileName))
+                    {
+                        CountThresh = Convert.ToDouble(sr.ReadLine());
+                        loThreshold = Convert.ToInt16(sr.ReadLine());
+                        hiThreshold = Convert.ToInt16(sr.ReadLine());
+                        quadMarginXR = Convert.ToInt16(sr.ReadLine());
+                        quadMarginXL = Convert.ToInt16(sr.ReadLine());
+                        quadMarginYT = Convert.ToInt16(sr.ReadLine());
+                        quadMarginYB = Convert.ToInt16(sr.ReadLine());
+                        blocks2countset = Convert.ToInt16(sr.ReadLine());
+                    }
                 }
+                catch (Exception ex) { Console.Write(ex); }
                 saveSettings(); //makes copy in local folder
             }
             
@@ -234,7 +238,7 @@ namespace KinectMotionMeasurePolling
 
              this.Unloaded += (s, e) => 
              { 
-             this.Kinect = null;
+             this._Kinect = null;
              this._Worker.CancelAsync();
              waveOut.Stop();
               };
@@ -265,7 +269,7 @@ namespace KinectMotionMeasurePolling
             }
             if (this._Kinect == null)
             {
-                this.Kinect = KinectSensor.KinectSensors.FirstOrDefault(x => x.Status == KinectStatus.Connected);
+                this._Kinect = KinectSensor.KinectSensors.FirstOrDefault(x => x.Status == KinectStatus.Connected);
 
                 if (this._Kinect != null)
                 {
@@ -340,7 +344,7 @@ namespace KinectMotionMeasurePolling
                 }
                 catch(Exception ex)
                 {
-                    //report error?
+                    Console.Write(ex);
                 }
             }
         }
@@ -379,7 +383,7 @@ namespace KinectMotionMeasurePolling
                 }
                 catch (Exception ex)
                 {
-                    
+                    Console.Write(ex);
                 }
             }
         }
@@ -1048,19 +1052,25 @@ namespace KinectMotionMeasurePolling
             }
             if (File.Exists(recentSettingsFileName))
             {
-                File.Delete(recentSettingsFileName);
+                //File.Delete(recentSettingsFileName);
             }
-
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(recentSettingsFileName, true))
+            try
             {
-                file.WriteLine(CountThresh);
-                file.WriteLine(loThreshold);
-                file.WriteLine(hiThreshold);
-                file.WriteLine(quadMarginXR);
-                file.WriteLine(quadMarginXL);
-                file.WriteLine(quadMarginYT);
-                file.WriteLine(quadMarginYB);
-                file.WriteLine(blocks2countset);
+                using (System.IO.StreamWriter file = new System.IO.StreamWriter(recentSettingsFileName, true))
+                {
+                    file.WriteLine(CountThresh);
+                    file.WriteLine(loThreshold);
+                    file.WriteLine(hiThreshold);
+                    file.WriteLine(quadMarginXR);
+                    file.WriteLine(quadMarginXL);
+                    file.WriteLine(quadMarginYT);
+                    file.WriteLine(quadMarginYB);
+                    file.WriteLine(blocks2countset);
+                }
+            }
+            catch(Exception ex)
+            {
+
             }
 
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(sfileName, true))
